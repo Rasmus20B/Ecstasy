@@ -16,7 +16,7 @@ export namespace ecstasy {
 
   template<typename T, size_t N, typename... C>
   requires(valid_component<T, C...>)
-  T& getComponent(ComponentManager& cm, Entity i) {
+  T& getComponent(ComponentManager<N, C...>& cm, Entity i) {
     return cm.template get<T>(i);
   }
 

@@ -40,7 +40,7 @@ TEST(scripting, adder) {
   auto ents = em.get_associated_entities<CTransform2D>();
   /* When the program counter extends past the program size, 
    * the entity is pushed to the deads container */
-  auto &handle = em.cm.template get<CTransform2D>(test);
+  auto &handle = getComponent<CTransform2D>(em.cm, test);
   EXPECT_LT(handle.position.y, 1080);
   while(em.deads.empty()) {
     std::println("x: {}, y: {}", handle.position.x, handle.position.y);

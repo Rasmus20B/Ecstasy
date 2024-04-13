@@ -42,10 +42,6 @@ export namespace ecstasy {
       uint32_t mipmaps;
       uint32_t format;
     };
-    struct CSprite {
-      Texture2D* sprite;
-    };
-
     struct CInput {};
 
     struct CAttraction {

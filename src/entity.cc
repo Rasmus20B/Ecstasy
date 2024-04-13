@@ -56,7 +56,7 @@ export namespace ecstasy {
     template<typename T>
     requires(valid_component<T, C...>)
     void add_component(Entity e, T&& c) {
-      component::component_manager.get<T>(e) = std::move(c);
+      cm.template get<T>(e) = std::move(c);
       e_maps[std::to_underlying(component::get_component_id<T>())].try_emplace(e);
     }
 

@@ -37,17 +37,5 @@ export namespace ecstasy {
       }
       std::tuple<std::vector<C>...> comps;
     };
-
-    inline ComponentManager<100000,  CTransform2D,
-                                     CVelocity,
-                                     CScript,
-                                     CHealth,
-                                     CSprite,
-                                     CInput,
-                                     CAttraction,
-                                     CCollider,
-                                     CBulletManager,
-                                     CChildren,
-                                     CParent> component_manager{};
   }
 }

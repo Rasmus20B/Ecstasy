@@ -40,19 +40,14 @@ TEST(scripting, adder) {
   auto ents = em.get_associated_entities<CTransform2D>();
   /* When the program counter extends past the program size, 
    * the entity is pushed to the deads container */
-  auto &handle = component_manager.get<CTransform2D>(test);
+  auto &handle = em.cm.template get<CTransform2D>(test);
   EXPECT_LT(handle.position.y, 1080);
   while(em.deads.empty()) {
-    systems::move_transform(ents);
+    std::println("x: {}, y: {}", handle.position.x, handle.position.y);
+    systems::move_transform(ents, em);
     systems::remove_out_of_bounds(ents, em);
   }
   EXPECT_GT(handle.position.y, 1080);
   /* Clean entity pool for next text */
   systems::remove_deads(em);
-  std::println("pool : {}", sizeof(em.pool));
-  std::println("maps : {}", sizeof(em.e_maps));
-  std::println("components : {}", sizeof(em.cm));
-  std::println("reuse : {}", sizeof(em.reuse));
-  std::println("deads : {}", sizeof(em.deads));
-  std::println("Total : {}", sizeof(em));
 }

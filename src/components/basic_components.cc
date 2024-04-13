@@ -35,13 +35,6 @@ export namespace ecstasy {
       std::vector<Entity> children;
     };
 
-    struct Texture2D {
-      uint32_t id;
-      uint32_t width;
-      uint32_t height;
-      uint32_t mipmaps;
-      uint32_t format;
-    };
     struct CInput {};
 
     struct CAttraction {

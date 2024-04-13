@@ -42,7 +42,7 @@ export namespace ecstasy {
     }
 
     void delete_entity(Entity e) {
-      for(auto i : std::views::iota(0u, sizeof...(C))) {
+      for(auto i : std::views::iota(0u, c_list.size)) {
        e_maps[i].remove(e);
       }
       pool.remove(e);
@@ -58,13 +58,13 @@ export namespace ecstasy {
     requires(valid_component<T, C...>)
     void add_component(Entity e, T&& c) {
       cm.template get<T>(e) = std::move(c);
-      e_maps[get_index_of_type<T, Typelist<C...>>].try_emplace(e);
+      e_maps[get_index_of_type<T, decltype(c_list)>].try_emplace(e);
     }
 
     template<typename T>
     requires(valid_component<T, C...>)
     constexpr std::vector<Entity> get_associated_entities() noexcept {
-      auto c_id = get_index_of_type<T, Typelist<C...>>;
+      auto c_id = get_index_of_type<T, decltype(c_list)>;
       return std::vector<Entity>(e_maps[c_id].begin(), e_maps[c_id].end());
     }
 
@@ -75,7 +75,7 @@ export namespace ecstasy {
     ComponentManager<N, C...> cm;
     RingBuffer<Entity, N> reuse;
     RingBuffer<Entity, N> deads;
-    [[no_unique_address]] Typelist<C...> components;
+    [[no_unique_address]] Typelist<C...> c_list;
   };
 }
 

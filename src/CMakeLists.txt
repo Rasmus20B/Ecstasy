@@ -8,7 +8,9 @@ target_sources(util
   util/ring_buffer.cc
   util/sparse_set.cc
   util/shapes.cc
-  util/types.cc)
+  util/types.cc
+  util/typelist.cc
+  )
 
 add_library(ecstasy)
 target_sources(ecstasy

@@ -24,7 +24,8 @@ struct FakeAssetManager {
 inline FakeAssetManager fa;
 
 TEST(scripting, adder) {
-  EntityManager em; 
+
+  EntityManager<20, CTransform2D, CVelocity> em; 
   auto test = em.create_entity();
   em.add_components<CTransform2D, CVelocity>(test,
       {
@@ -40,9 +41,9 @@ TEST(scripting, adder) {
    * the entity is pushed to the deads container */
   auto &handle = component_manager.get<CTransform2D>(test);
   EXPECT_LT(handle.position.y, 1080);
-  while(deads.empty()) {
+  while(em.deads.empty()) {
     systems::move_transform(ents);
-    systems::remove_out_of_bounds(ents);
+    systems::remove_out_of_bounds(ents, em);
   }
   EXPECT_GT(handle.position.y, 1080);
   /* Clean entity pool for next text */

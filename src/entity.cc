@@ -16,10 +16,11 @@ import util;
 export namespace ecstasy {
   using namespace component;
 
-  inline RingBuffer<Entity, 10000> reuse;
-  inline RingBuffer<Entity, 10000> deads;
-
+  template<size_t N, typename ...C>
   struct EntityManager {
+
+    EntityManager() : cm(ComponentManager<N, C...>()) {
+    }
 
     using pool_type = basic_sparse_set<Entity>;
     using map_type = std::unordered_map<int, basic_sparse_set<Entity>>;
@@ -64,10 +65,17 @@ export namespace ecstasy {
       return std::vector<Entity>(e_maps[c_id].begin(), e_maps[c_id].end());
     }
 
+    void run_systems() {
+      
+    }
+
     pool_type pool;
     usize e_count = 1;
     usize e_cur = 1;
     map_type e_maps{};
+    ComponentManager<N, C...> cm;
+    RingBuffer<Entity, 10000> reuse;
+    RingBuffer<Entity, 10000> deads;
   };
 }
 

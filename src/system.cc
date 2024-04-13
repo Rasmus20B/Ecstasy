@@ -45,14 +45,15 @@ export namespace ecstasy {
       }
     }
 
-    void remove_out_of_bounds(const std::span<Entity> es) {
+    template<size_t N, typename ...C>
+    void remove_out_of_bounds(const std::span<Entity> es, EntityManager<N, C...>& em) {
       for(auto i: es) {
         auto pos = component_manager.get<CTransform2D>(i).position;
         if(pos.x < 0 ||
            pos.y < 0 ||
            pos.x > 1920 ||
            pos.y > 1080) {
-          deads.push(i);
+          em.deads.push(i);
         }
       }
     }
@@ -89,32 +90,35 @@ export namespace ecstasy {
       }
     }
 
-    void remove_orphans(Entity e) {
+    template<size_t N, typename ...C>
+    void remove_orphans(Entity e, EntityManager<N, C...>& em) {
       for(auto &c: component_manager.get<CChildren>(e).children) {
-        deads.push(c);
+        em.deads.push(c);
       }
     }
 
-    void remove_from_family(Entity e) {
+    template<size_t N, typename ...C>
+    void remove_from_family(Entity e, EntityManager<N, C...>& em) {
       auto &parent = component_manager.get<CParent>(e).parent;
       auto &siblings = component_manager.get<CChildren>(parent).children;
       siblings.erase(std::remove(siblings.begin(), siblings.end(), e), siblings.end());
     }
 
-    void remove_deads(EntityManager& em) {
-      auto ch_ents = em.get_associated_entities<CChildren>();
-      auto par_ents = em.get_associated_entities<CParent>();
-      while(!deads.empty()) {
-        auto e = deads.front();
+    template<size_t N, typename ...C>
+    void remove_deads(EntityManager<N, C...>& em) {
+      auto ch_ents = em.template get_associated_entities<CChildren>();
+      auto par_ents = em.template get_associated_entities<CParent>();
+      while(!em.deads.empty()) {
+        auto e = em.deads.front();
         if(std::find(ch_ents.begin(), ch_ents.end(), e) != ch_ents.end()) {
-          remove_orphans(e);
+          remove_orphans(e, em);
         }
         if(std::find(par_ents.begin(), par_ents.end(), e) != par_ents.end()) {
-          remove_from_family(e);
+          remove_from_family(e, em);
         }
-        deads.pop();
+        em.deads.pop();
         em.delete_entity(e);
-        reuse.push(e);
+        em.reuse.push(e);
       }
     }
 
@@ -124,15 +128,15 @@ export namespace ecstasy {
       manager.scripts["asd"];
     };
 
-    template<AssetManager T>
-    void progress_script(std::span<Entity> es, EntityManager& em, T assets) {
+    template<AssetManager T, size_t N, typename ...C>
+    void progress_script(std::span<Entity> es, EntityManager<N, C...>& em, T assets) {
 
       using sc = ecstasy::component::CScript;
       for(auto e: es) {
         auto &s_component = component_manager.get<CScript>(e);
 
         if(s_component.pc >= s_component.program.size()) {
-          deads.push(e);
+          em.deads.push(e);
           continue;
         }
 
@@ -172,13 +176,13 @@ export namespace ecstasy {
                   s_component.pc = s_component.call_stack.back();
                   s_component.call_stack.pop_back();
                 } else {
-                  deads.push(e);
+                  em.deads.push(e);
                 }
               }
               break;
 
             case OpCode::DELETE:
-              deads.push(e);
+              em.deads.push(e);
               break;
 
             case OpCode::WAIT:
@@ -298,7 +302,7 @@ export namespace ecstasy {
               tmp.init_from_parent(addr);
               tmp.state = sc::VMState::SUBTHREAD;
 
-              em.add_components<CScript, CParent, CChildren>(as,
+              em.template add_components<CScript, CParent, CChildren>(as,
                 std::move(tmp),
                 {e},
                 {}
@@ -325,7 +329,7 @@ export namespace ecstasy {
                 [[maybe_unused]] auto items = s_component.consume_operand();
 
                 auto sprite = &assets.sprites["enm1.png"].data;
-                em.add_components<CTransform2D, CVelocity, CSprite, CScript, CBulletManager, CHealth>(enm,
+                em.template add_components<CTransform2D, CVelocity, CSprite, CScript, CBulletManager, CHealth>(enm,
                     { .position { .x = x, .y = y }, .scale { 1, 1 }, .rotation = 0.f },
                     { .velocity { .x = 0, .y = 0 } },
                     { .sprite = sprite },
@@ -364,7 +368,7 @@ export namespace ecstasy {
                       vel.x = std::cos(new_angle + (i * bp.angle2 )) * lspeed * 0.005; 
                       vel.y = std::sin(new_angle + (i * bp.angle2 )) * lspeed * 0.005;
                       auto bullet = em.create_entity();
-                      em.add_components<CTransform2D, CVelocity, CSprite>(bullet,
+                      em.template add_components<CTransform2D, CVelocity, CSprite>(bullet,
                         {
                           enm_pos,
                           {
@@ -393,7 +397,7 @@ export namespace ecstasy {
                       vel.x = std::cos(new_angle) * lspeed * 0.005;
                       vel.y = std::sin(new_angle) * lspeed * 0.005;
                       auto bullet = em.create_entity();
-                      em.add_components<CTransform2D, CVelocity, CSprite>(bullet,
+                      em.template add_components<CTransform2D, CVelocity, CSprite>(bullet,
                         {
                           enm_pos,
                           {
@@ -513,7 +517,7 @@ export namespace ecstasy {
             
             default:
               std::println("Unimplmented Opcode {:x} found @{:x}", std::to_underlying(op), s_component.pc);
-              deads.push(e);
+              em.deads.push(e);
           }
         }
       }

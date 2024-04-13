@@ -4,6 +4,7 @@ module;
 #include <type_traits>
 #include <string_view>
 #include <source_location>
+#include <limits>
 
 #include <iostream>
 
@@ -267,6 +268,26 @@ constexpr void constexpr_for_n(F&& f) {
   }
 }
 
+template<typename T, size_t count>
+consteval size_t get_index_of_typeT(Typelist<>) {
+  return std::numeric_limits<size_t>::max();
+}
+
+template<typename T, size_t count, typename List>
+consteval size_t get_index_of_TypeT(List) {
+  if constexpr(List::size == 0) {
+    return std::numeric_limits<size_t>::max();
+  }
+  if constexpr(std::is_same_v<T, Front<List>>) {
+    return count;
+  } else {
+    return get_index_of_TypeT<T, count + 1>(PopFront<List>{});
+  }
+}
+
+template<typename T, typename List>
+inline constexpr size_t get_index_of_type = get_index_of_TypeT<T, 0>(List{});
+
 template<typename F, typename... Args>
 constexpr void constexpr_for(F&& f, Args&&... args) {
   (f(std::forward<Args>(args)), ...);
@@ -281,4 +302,7 @@ inline constexpr int count_frequency_of_type = count_frequency_of_typeT<T>(List{
 template<typename List> 
 inline constexpr size_t count_unique = count_uniqueT<Front<List>, Front<PopFront<List>>, PopFront<List>>::value;
 
+using T1 = Typelist<int, char, size_t, float, double>;
+static_assert(T1::size == 5);
+static_assert(get_index_of_type<size_t, T1> == 2);
 }

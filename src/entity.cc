@@ -20,7 +20,8 @@ export namespace ecstasy {
   template<size_t N, typename ...C>
   struct EntityManager {
 
-    EntityManager() : cm(ComponentManager<N, C...>()) {}
+    EntityManager() {
+    };
 
     using pool_type = basic_sparse_set<Entity>;
     using map_type = std::unordered_map<int, basic_sparse_set<Entity>>;
@@ -41,7 +42,7 @@ export namespace ecstasy {
     }
 
     void delete_entity(Entity e) {
-      for(auto i : std::views::iota(0, std::to_underlying(component::ComponentID::Size))) {
+      for(auto i : std::views::iota(0u, sizeof...(C))) {
        e_maps[i].remove(e);
       }
       pool.remove(e);
@@ -57,28 +58,23 @@ export namespace ecstasy {
     requires(valid_component<T, C...>)
     void add_component(Entity e, T&& c) {
       cm.template get<T>(e) = std::move(c);
-      e_maps[std::to_underlying(component::get_component_id<T>())].try_emplace(e);
+      e_maps[get_index_of_type<T, Typelist<C...>>].try_emplace(e);
     }
 
     template<typename T>
     requires(valid_component<T, C...>)
     constexpr std::vector<Entity> get_associated_entities() noexcept {
-      auto c_id = std::to_underlying(component::get_component_id<T>());
+      auto c_id = get_index_of_type<T, Typelist<C...>>;
       return std::vector<Entity>(e_maps[c_id].begin(), e_maps[c_id].end());
     }
-
-    void run_systems() {
-      
-    }
-
 
     pool_type pool;
     usize e_count = 1;
     usize e_cur = 1;
     map_type e_maps{};
     ComponentManager<N, C...> cm;
-    RingBuffer<Entity, 10000> reuse;
-    RingBuffer<Entity, 10000> deads;
+    RingBuffer<Entity, N> reuse;
+    RingBuffer<Entity, N> deads;
     [[no_unique_address]] Typelist<C...> components;
   };
 }

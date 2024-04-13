@@ -25,7 +25,7 @@ inline FakeAssetManager fa;
 
 TEST(scripting, adder) {
 
-  EntityManager<20, CTransform2D, CVelocity> em; 
+  EntityManager<20, CVelocity, CTransform2D> em; 
   auto test = em.create_entity();
   em.add_components<CTransform2D, CVelocity>(test,
       {

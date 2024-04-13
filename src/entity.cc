@@ -14,6 +14,12 @@ import util;
 export namespace ecstasy {
   using namespace component;
 
+  template<typename T, size_t N, typename... C>
+  requires(valid_component<T, C...>)
+  T& getComponent(ComponentManager& cm, Entity i) {
+    return cm.template get<T>(i);
+  }
+
 
   template<size_t N, typename ...C>
   struct EntityManager {

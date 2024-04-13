@@ -35,7 +35,7 @@ export namespace ecstasy {
     template<size_t N, typename ...C>
     void remove_out_of_bounds(const std::span<Entity> es, EntityManager<N, C...>& em) {
       for(auto i: es) {
-        auto pos = em.cm.template get<CTransform2D>(i).position;
+        auto pos = getComponent<CTransform2D>(em.cm, i).position;
         if(pos.x < 0 ||
            pos.y < 0 ||
            pos.x > 1920 ||
@@ -48,48 +48,48 @@ export namespace ecstasy {
     template<size_t N, typename ...C>
     void orient_to_attractor(const std::span<Entity> es, EntityManager<N, C...>& em) {
       for(auto i: es) {
-        const auto att = em.cm.template get<CAttraction>(i).attractor;
-        auto entity_pos = em.cm.template get<CTransform2D>(i).position;
-        auto attractor_pos = em.cm.template get<CTransform2D>(att).position;
+        const auto att = getComponent<CAttraction>(em.cm, i).attractor;
+        auto entity_pos = getComponent<CTransform2D>(em.cm, i).position;
+        auto attractor_pos = getComponent<CTransform2D>(em.cm, att).position;
 
-        if(attractor_pos.x == em.cm.template get<CAttraction>(i).cache.x &&
-            attractor_pos.y == em.cm.template get<CAttraction>(i).cache.y) {
+        if(attractor_pos.x == getComponent<CAttraction>(em.cm, i).cache.x &&
+            attractor_pos.y == getComponent<CAttraction>(em.cm, i).cache.y) {
           continue;
         }
-        em.cm.template get<CAttraction>(i).cache = attractor_pos;
+        getComponent<CAttraction>(em.cm, i).cache = attractor_pos;
         auto dvec = attractor_pos - entity_pos;
         auto val = (dvec.x * dvec.x) + (dvec.y * dvec.y);
         float dist = sqrtf(val);
-        float cur_power = em.cm.template get<CAttraction>(i).gravity / dist;
-        em.cm.template get<CVelocity>(i).velocity.x = (dvec.x/dist) * cur_power;
-        em.cm.template get<CVelocity>(i).velocity.y = (dvec.y/dist) * cur_power;
+        float cur_power = getComponent<CAttraction>(em.cm, i).gravity / dist;
+        getComponent<CVelocity>(em.cm, i).velocity.x = (dvec.x/dist) * cur_power;
+        getComponent<CVelocity>(em.cm, i).velocity.y = (dvec.y/dist) * cur_power;
       }
     }
 
     template<size_t N, typename ...C>
     void check_collisions_with_single_entity(const std::span<Entity> es, const Entity e, EntityManager<N, C...>& em) {
-      const auto& te = em.cm.template get<CTransform2D>(e);
+      const auto& te = getComponent<CTransform2D>(em.cm, e);
       Circle ce(te.position, te.scale.x * 0.5f);
       for(auto i: es) {
-        const auto& ti = em.cm.template get<CTransform2D>(i);
+        const auto& ti = getComponent<CTransform2D>(em.cm, i);
         Circle ci(ti.position, ti.scale.x * 0.5f);
         if(ci.collides_with(ce)) {
-          em.cm.template get<CCollider>(i).callback(i, e);
+          getComponent<CCollider>(em.cm, i).callback(i, e);
         }
       }
     }
 
     template<size_t N, typename ...C>
     void remove_orphans(Entity e, EntityManager<N, C...>& em) {
-      for(auto &c: em.cm.template get<CChildren>(e).children) {
+      for(auto &c: getComponent<CChildren>(em.cm, e).children) {
         em.deads.push(c);
       }
     }
 
     template<size_t N, typename ...C>
     void remove_from_family(Entity e, EntityManager<N, C...>& em) {
-      auto &parent = em.cm.template get<CParent>(e).parent;
-      auto &siblings = em.cm.template get<CChildren>(parent).children;
+      auto &parent = getComponent<CParent>(em.cm, e).parent;
+      auto &siblings = getComponent<CChildren>(em.cm, parent).children;
       siblings.erase(std::remove(siblings.begin(), siblings.end(), e), siblings.end());
     }
 

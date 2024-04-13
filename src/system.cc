@@ -27,7 +27,8 @@ export namespace ecstasy {
     template<size_t N, typename ...C>
     void move_transform(const std::span<Entity> es, EntityManager<N, C...>& em) {
       for(auto i : es) {
-        em.cm.template get<CTransform2D>(i).position = em.cm.template get<CTransform2D>(i).position + em.cm.template get<CVelocity>(i).velocity;
+        auto& p = getComponent<CTransform2D>(em.cm, i).position;
+        p += getComponent<CVelocity>(em.cm, i).velocity;
       }
     }
 

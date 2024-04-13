@@ -17,6 +17,7 @@ concept Shape = requires(T shape) {
 
 export struct Vec2 {
   Vec2 operator+(const Vec2 rhs) const { return Vec2(x + rhs.x, y + rhs.y); }
+  Vec2& operator+=(const Vec2 rhs) { x += rhs.x; y += rhs.y; return *this; }
   Vec2 operator-(const Vec2 rhs) const { return Vec2(x - rhs.x, y - rhs.y); }
   Vec2 rotate(const f32 angle) const {
     return { x * (f32)cos(angle) - (y * (f32)sin(angle)),

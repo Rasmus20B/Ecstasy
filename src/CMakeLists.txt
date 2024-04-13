@@ -23,10 +23,6 @@ target_sources(ecstasy
   system.cc
   components/components.cc
   components/basic_components.cc
-  components/bullets.cc
-  components/script/script.cc
-  components/script/opcodes.cc
-  components/script/vm.cc
   )
 
 target_link_libraries(ecstasy util)

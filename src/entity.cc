@@ -3,8 +3,6 @@ module;
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>
-#include <iostream>
-#include <queue>
 #include <ranges>
 
 export module ecstasy:entity;

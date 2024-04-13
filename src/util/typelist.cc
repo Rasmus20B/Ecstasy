@@ -301,8 +301,4 @@ inline constexpr int count_frequency_of_type = count_frequency_of_typeT<T>(List{
 
 template<typename List> 
 inline constexpr size_t count_unique = count_uniqueT<Front<List>, Front<PopFront<List>>, PopFront<List>>::value;
-
-using T1 = Typelist<int, char, size_t, float, double>;
-static_assert(T1::size == 5);
-static_assert(get_index_of_type<size_t, T1> == 2);
 }

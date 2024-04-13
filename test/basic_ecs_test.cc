@@ -36,6 +36,7 @@ TEST(scripting, adder) {
       {
         .velocity = {80, 80}
       });
+
   auto ents = em.get_associated_entities<CTransform2D>();
   /* When the program counter extends past the program size, 
    * the entity is pushed to the deads container */
@@ -48,4 +49,10 @@ TEST(scripting, adder) {
   EXPECT_GT(handle.position.y, 1080);
   /* Clean entity pool for next text */
   systems::remove_deads(em);
+  std::println("pool : {}", sizeof(em.pool));
+  std::println("maps : {}", sizeof(em.e_maps));
+  std::println("components : {}", sizeof(em.cm));
+  std::println("reuse : {}", sizeof(em.reuse));
+  std::println("deads : {}", sizeof(em.deads));
+  std::println("Total : {}", sizeof(em));
 }

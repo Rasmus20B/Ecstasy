@@ -9,6 +9,8 @@ module;
 
 export module util:typelist;
 
+export {
+
 
 template<typename T>
 void print() {
@@ -278,3 +280,5 @@ inline constexpr int count_frequency_of_type = count_frequency_of_typeT<T>(List{
 
 template<typename List> 
 inline constexpr size_t count_unique = count_uniqueT<Front<List>, Front<PopFront<List>>, PopFront<List>>::value;
+
+}

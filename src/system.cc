@@ -106,15 +106,25 @@ export namespace ecstasy {
 
     template<size_t N, typename ...C>
     void remove_deads(EntityManager<N, C...>& em) {
-      auto ch_ents = em.template get_associated_entities<CChildren>();
-      auto par_ents = em.template get_associated_entities<CParent>();
+      std::vector<Entity> par_ents;
+      std::vector<Entity> ch_ents;
+      if constexpr(count_frequency_of_type<CParent, Typelist<C...>>) {
+        par_ents = em.template get_associated_entities<CParent>();
+      }
+      if constexpr(count_frequency_of_type<CChildren, Typelist<C...>>) {
+        ch_ents = em.template get_associated_entities<CChildren>();
+      }
       while(!em.deads.empty()) {
         auto e = em.deads.front();
-        if(std::find(ch_ents.begin(), ch_ents.end(), e) != ch_ents.end()) {
-          remove_orphans(e, em);
+        if constexpr(count_frequency_of_type<CChildren, Typelist<C...>>) {
+          if(std::find(ch_ents.begin(), ch_ents.end(), e) != ch_ents.end()) {
+            remove_orphans(e, em);
+          }
         }
-        if(std::find(par_ents.begin(), par_ents.end(), e) != par_ents.end()) {
-          remove_from_family(e, em);
+        if constexpr(count_frequency_of_type<CParent, Typelist<C...>>) {
+          if(std::find(par_ents.begin(), par_ents.end(), e) != par_ents.end()) {
+            remove_from_family(e, em);
+          }
         }
         em.deads.pop();
         em.delete_entity(e);

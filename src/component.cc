@@ -12,12 +12,13 @@ import util;
 
 export namespace ecstasy {
   namespace component {
-    template<typename T>
-    concept Component = requires {
-      requires get_component_id<T>() != ComponentID::Size;
+
+    template<typename D, typename ...C>
+    concept valid_component = requires {
+      requires (count_frequency_of_type<D, Typelist<C...>> != 0); 
     };
 
-    template<size_t N, Component... C>
+    template<size_t N, typename... C>
     struct ComponentManager {
       ComponentManager() {
         std::apply([](auto&... c) {
@@ -25,12 +26,12 @@ export namespace ecstasy {
             }, comps);
       }
 
-      template<Component V>
+      template<typename V>
       inline V& get(const size_t idx) {
         return std::get<std::vector<V>>(comps)[idx]; 
       }
 
-      template<Component V>
+      template<typename V>
       inline std::vector<V>& get() {
         return std::get<std::vector<V>>(comps); 
       }

@@ -13,9 +13,11 @@ import util;
 export namespace ecstasy {
   namespace component {
 
+    namespace tl = util::typelist;
+
     template<typename D, typename ...C>
     concept valid_component = requires {
-      requires (count_frequency_of_type<D, Typelist<C...>> != 0); 
+      requires (tl::contains<D, tl::Typelist<C...>> != 0); 
     };
 
     template<size_t N, typename... C>

@@ -14,6 +14,8 @@ import util;
 export namespace ecstasy {
   using namespace component;
 
+  namespace tl = util::typelist;
+
   template<typename T, size_t N, typename... C>
   requires(valid_component<T, C...>)
   T& getComponent(ComponentManager<N, C...>& cm, Entity i) {
@@ -27,8 +29,9 @@ export namespace ecstasy {
     EntityManager() {
     };
 
-    using pool_type = basic_sparse_set<Entity>;
-    using map_type = std::unordered_map<int, basic_sparse_set<Entity>>;
+    using pool_t = util::basic_sparse_set<Entity>;
+    using map_t = std::unordered_map<int, util::basic_sparse_set<Entity>>;
+    using queue_t = util::RingBuffer<Entity, N>;
 
     Entity create_entity() {
       if(!reuse.empty()) {
@@ -62,24 +65,24 @@ export namespace ecstasy {
     requires(valid_component<T, C...>)
     void add_component(Entity e, T&& c) {
       cm.template get<T>(e) = std::move(c);
-      e_maps[get_index_of_type<T, decltype(c_list)>].try_emplace(e);
+      e_maps[tl::get_index_of_type<T, decltype(c_list)>].try_emplace(e);
     }
 
     template<typename T>
     requires(valid_component<T, C...>)
     constexpr std::vector<Entity> get_associated_entities() noexcept {
-      auto c_id = get_index_of_type<T, decltype(c_list)>;
+      auto c_id = tl::get_index_of_type<T, decltype(c_list)>;
       return std::vector<Entity>(e_maps[c_id].begin(), e_maps[c_id].end());
     }
 
-    pool_type pool;
     usize e_count = 1;
     usize e_cur = 1;
-    map_type e_maps{};
+    pool_t pool;
+    map_t e_maps;
+    queue_t reuse;
+    queue_t deads;
     ComponentManager<N, C...> cm;
-    RingBuffer<Entity, N> reuse;
-    RingBuffer<Entity, N> deads;
-    [[no_unique_address]] Typelist<C...> c_list;
+    [[no_unique_address]] tl::Typelist<C...> c_list;
   };
 }
 

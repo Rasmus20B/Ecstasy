@@ -8,7 +8,6 @@ import util;
 
 using namespace ecstasy;
 using namespace ecstasy::component;
-using namespace ecstasy::systems;
 
 TEST(scripting, adder) {
 

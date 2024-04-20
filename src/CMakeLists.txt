@@ -20,9 +20,9 @@ target_sources(ecstasy
   ecstasy.cc
   component.cc
   entity.cc
-  system.cc
   components/components.cc
   components/basic_components.cc
+  systems/basic_systems.cc
   )
 
 target_link_libraries(ecstasy util)

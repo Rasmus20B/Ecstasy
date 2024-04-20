@@ -1,5 +1,5 @@
 export module ecstasy;
 
 export import :entity;
-export import :system;
+export import :basic_systems;
 export import :component;

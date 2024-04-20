@@ -12,7 +12,7 @@ module;
 #include <thread>
 
 
-export module ecstasy:system;
+export module ecstasy:basic_systems;
 
 import :component;
 import :entity;
@@ -22,6 +22,16 @@ import util;
 export namespace ecstasy {
   using namespace component;
   namespace systems {
+
+    template<typename... D>
+    struct System {
+
+      void operator()() {
+        return;
+      }
+      std::function<void()> runner;
+      [[no_unique_address]] tl::Typelist<D...> dependencies;
+    };
 
     template<size_t N, typename ...C>
     void move_transform(const std::span<Entity> es, EntityManager<N, C...>& em) {

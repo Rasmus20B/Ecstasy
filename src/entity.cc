@@ -22,7 +22,6 @@ export namespace ecstasy {
     return cm.template get<T>(i);
   }
 
-
   template<size_t N, typename ...C>
   struct EntityManager {
 

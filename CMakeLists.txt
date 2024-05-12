@@ -10,8 +10,13 @@ add_compile_options(
   -Wall
   -pedantic
 )
+
 add_subdirectory(src)
-add_subdirectory(test)
+
+if(BUILD_TESTS)
+  add_subdirectory(test)
+endif()
+
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "") # works
 
 if (APPLE)

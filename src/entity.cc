@@ -47,6 +47,12 @@ export namespace ecstasy {
       }
     }
 
+    void delete_all_entities() {
+      for(auto &i: pool.dense) {
+        delete_entity(i);
+      }
+    }
+
     void delete_entity(Entity e) {
       for(auto i : std::views::iota(0u, c_list.size)) {
        e_maps[i].remove(e);
